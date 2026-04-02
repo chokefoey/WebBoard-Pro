@@ -423,6 +423,57 @@
   .perm-check { color: var(--success); }
   .perm-x { color: var(--text-muted); }
 
+  /* ─── DRIVE IMAGE WRAPPER ─── */
+  .drive-img-wrap {
+    position: relative; border-radius: 10px; overflow: hidden;
+    background: var(--bg-card); min-height: 160px; cursor: zoom-in;
+    border: 1px solid var(--border);
+  }
+  .drive-img-wrap:hover .img-overlay { opacity: 1 !important; background: rgba(0,0,0,0.35) !important; }
+  .img-placeholder {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    color: var(--text-muted); font-size: 0.8rem; gap: 6px;
+    pointer-events: none;
+  }
+  .img-placeholder i { font-size: 2rem; }
+  .img-overlay {
+    position: absolute; inset: 0; background: rgba(0,0,0,0);
+    transition: all 0.2s; display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none;
+  }
+  .img-overlay i { font-size: 1.5rem; color: #fff; }
+  .drive-img-wrap .post-image { opacity: 0; transition: opacity 0.4s; }
+
+  /* ─── LIGHTBOX ─── */
+  .lightbox {
+    position: fixed; inset: 0; z-index: 999;
+    background: rgba(0,0,0,0.92);
+    display: flex; align-items: center; justify-content: center;
+    cursor: zoom-out; opacity: 0; pointer-events: none; transition: opacity 0.25s;
+  }
+  .lightbox.open { opacity: 1; pointer-events: all; }
+  .lightbox img {
+    max-width: 92vw; max-height: 88vh; border-radius: 10px;
+    box-shadow: 0 8px 60px rgba(0,0,0,0.8);
+    transform: scale(0.95); transition: transform 0.25s;
+  }
+  .lightbox.open img { transform: scale(1); }
+  .lightbox-close {
+    position: absolute; top: 20px; right: 24px;
+    width: 40px; height: 40px; border-radius: 50%;
+    background: rgba(255,255,255,0.12); border: none; color: #fff;
+    font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s;
+  }
+  .lightbox-close:hover { background: rgba(255,255,255,0.25); }
+  .lightbox-open-btn {
+    position: absolute; bottom: 20px; right: 24px;
+    padding: 8px 16px; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2);
+    color: #fff; border-radius: 8px; font-size: 0.8rem; cursor: pointer;
+    text-decoration: none; display: flex; align-items: center; gap: 6px;
+  }
+
   /* ─── RESPONSIVE ─── */
   @media (max-width: 1024px) { .right-panel { display: none; } }
   @media (max-width: 768px) { .sidebar { display: none; } .main-content { padding: 16px; } }
@@ -453,7 +504,7 @@
     </button>
     <div class="divider"></div>
     <div style="font-size:0.8rem;color:var(--text-muted);text-align:center;">
-      Demo: admin@example.com / admin123 &nbsp;|&nbsp; mod@example.com / mod123 &nbsp;|&nbsp; user@example.com / user123
+      Demo: <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="147570797d7a54716c75796478713a777b79">[email&#160;protected]</a> / admin123 &nbsp;|&nbsp; <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="a8c5c7cce8cdd0c9c5d8c4cd86cbc7c5">[email&#160;protected]</a> / mod123 &nbsp;|&nbsp; <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="3c494f594e7c59445d514c5059125f5351">[email&#160;protected]</a> / user123
     </div>
   </div>
 </div>
@@ -490,27 +541,14 @@
   <!-- SIDEBAR -->
   <aside class="sidebar">
     <div class="sidebar-section">
-      <div class="sidebar-label">หมวดหมู่</div>
-      <a class="category-item active" onclick="filterCategory('all')">
-        <i class="fa-solid fa-border-all" style="color:var(--accent)"></i> ทั้งหมด
-        <span class="badge" id="cat-all">0</span>
-      </a>
-      <a class="category-item" onclick="filterCategory('announcement')">
-        <i class="fa-solid fa-bullhorn" style="color:var(--warning)"></i> ประกาศ
-        <span class="badge" id="cat-ann">0</span>
-      </a>
-      <a class="category-item" onclick="filterCategory('general')">
-        <i class="fa-solid fa-comments" style="color:var(--accent-2)"></i> ทั่วไป
-        <span class="badge" id="cat-gen">0</span>
-      </a>
-      <a class="category-item" onclick="filterCategory('question')">
-        <i class="fa-solid fa-circle-question" style="color:#60a5fa"></i> ถาม-ตอบ
-        <span class="badge" id="cat-q">0</span>
-      </a>
-      <a class="category-item" onclick="filterCategory('work')">
-        <i class="fa-solid fa-briefcase" style="color:#a78bfa"></i> งาน/โครงการ
-        <span class="badge" id="cat-work">0</span>
-      </a>
+      <div class="sidebar-label" style="display:flex;align-items:center;justify-content:space-between;">
+        หมวดหมู่
+        <button id="btnAddCat" onclick="openCategoryModal()" title="เพิ่มหมวดหมู่"
+          style="display:none;width:22px;height:22px;border-radius:6px;background:var(--accent-glow);border:1px solid var(--border-accent);color:var(--accent);cursor:pointer;font-size:0.75rem;align-items:center;justify-content:center;">
+          <i class="fa-solid fa-plus"></i>
+        </button>
+      </div>
+      <div id="categoryList"></div>
     </div>
     <div class="sidebar-section">
       <div class="sidebar-label">เรียงลำดับ</div>
@@ -615,6 +653,7 @@
             <tr><td>แก้ไข/ลบกระทู้คนอื่น</td><td class="perm-check">✓</td><td class="perm-check">✓</td><td class="perm-x">—</td></tr>
             <tr><td>ปักหมุดกระทู้</td><td class="perm-check">✓</td><td class="perm-check">✓</td><td class="perm-x">—</td></tr>
             <tr><td>จัดการผู้ใช้</td><td class="perm-check">✓</td><td class="perm-x">—</td><td class="perm-x">—</td></tr>
+            <tr><td>เพิ่ม/แก้ไขหมวดหมู่</td><td class="perm-check">✓</td><td class="perm-check">✓</td><td class="perm-x">—</td></tr>
             <tr><td>ตั้งค่าระบบ</td><td class="perm-check">✓</td><td class="perm-x">—</td><td class="perm-x">—</td></tr>
           </tbody>
         </table>
@@ -748,10 +787,74 @@
   </div>
 </div>
 
+<!-- ─── CATEGORY MODAL ─── -->
+<div class="modal-overlay" id="categoryModal">
+  <div class="modal" style="max-width:500px;">
+    <div class="modal-title"><i class="fa-solid fa-tags"></i> จัดการหมวดหมู่</div>
+
+    <!-- เพิ่มหมวดหมู่ใหม่ -->
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px;">
+      <div style="font-weight:600;font-size:0.875rem;margin-bottom:12px;color:var(--text-primary);">
+        <i class="fa-solid fa-plus" style="color:var(--accent)"></i> เพิ่มหมวดหมู่ใหม่
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+        <div class="form-group" style="margin:0">
+          <label class="form-label">ชื่อหมวดหมู่ *</label>
+          <input class="form-control" id="catName" placeholder="เช่น ข่าวสาร"
+            oninput="updateCatPreview();autoFillCatKey(this.value)">
+        </div>
+        <div class="form-group" style="margin:0">
+          <label class="form-label">key (ภาษาอังกฤษ) *</label>
+          <input class="form-control" id="catKey" placeholder="เช่น news" oninput="this.value=this.value.replace(/[^a-z0-9_]/g,'').toLowerCase()">
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+        <div class="form-group" style="margin:0">
+          <label class="form-label">ไอคอน (Font Awesome class)</label>
+          <input class="form-control" id="catIcon" placeholder="fa-solid fa-star" oninput="updateCatPreview()">
+        </div>
+        <div class="form-group" style="margin:0">
+          <label class="form-label">สี</label>
+          <div style="display:flex;gap:8px;align-items:center;margin-top:6px;">
+            <input type="color" id="catColor" value="#14c8a0" oninput="updateCatPreview()"
+              style="width:40px;height:36px;border-radius:8px;border:1px solid var(--border);background:none;cursor:pointer;padding:2px;">
+            <div id="catPreview" style="display:flex;align-items:center;gap:8px;font-size:0.875rem;padding:6px 12px;background:var(--bg-card-hover);border-radius:8px;border:1px solid var(--border);">
+              <i id="catPreviewIcon" class="fa-solid fa-star" style="color:#14c8a0"></i>
+              <span id="catPreviewName" style="color:var(--text-primary)">ตัวอย่าง</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="addCategory()">
+        <i class="fa-solid fa-plus"></i> เพิ่มหมวดหมู่
+      </button>
+    </div>
+
+    <!-- รายการหมวดหมู่ -->
+    <div style="font-weight:600;font-size:0.875rem;margin-bottom:10px;color:var(--text-secondary);">
+      <i class="fa-solid fa-list"></i> หมวดหมู่ทั้งหมด
+    </div>
+    <div id="catManageList" style="display:flex;flex-direction:column;gap:6px;max-height:280px;overflow-y:auto;"></div>
+
+    <div style="margin-top:16px;">
+      <button class="btn btn-ghost" onclick="closeModal('categoryModal')"><i class="fa-solid fa-xmark"></i> ปิด</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── LIGHTBOX ─── -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <button class="lightbox-close" onclick="closeLightbox()"><i class="fa-solid fa-xmark"></i></button>
+  <img id="lightboxImg" src="" alt="รูปภาพ">
+  <a class="lightbox-open-btn" id="lightboxLink" href="#" target="_blank" onclick="event.stopPropagation()">
+    <i class="fa-solid fa-up-right-from-square"></i> เปิดใน Drive
+  </a>
+</div>
+
 <!-- ─── TOAST ─── -->
 <div class="toast-container" id="toastContainer"></div>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 // ═══════════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════════
@@ -775,6 +878,26 @@ let CONFIG = {
   driveKey: localStorage.getItem('wb_driveKey') || '',
 };
 
+// ─── CATEGORIES — โหลดจาก localStorage หรือใช้ค่าเริ่มต้น ───
+const DEFAULT_CATEGORIES = [
+  { key:'all',          name:'ทั้งหมด',       icon:'fa-solid fa-border-all',      color:'#14c8a0', builtin:true },
+  { key:'announcement', name:'ประกาศ',         icon:'fa-solid fa-bullhorn',         color:'#fbbf24', builtin:true },
+  { key:'general',      name:'ทั่วไป',         icon:'fa-solid fa-comments',         color:'#6366f1', builtin:true },
+  { key:'question',     name:'ถาม-ตอบ',        icon:'fa-solid fa-circle-question',  color:'#60a5fa', builtin:true },
+  { key:'work',         name:'งาน/โครงการ',    icon:'fa-solid fa-briefcase',        color:'#a78bfa', builtin:true },
+];
+
+function loadCategories() {
+  try {
+    const saved = localStorage.getItem('wb_categories');
+    return saved ? JSON.parse(saved) : [...DEFAULT_CATEGORIES];
+  } catch(_) { return [...DEFAULT_CATEGORIES]; }
+}
+function saveCategories(cats) {
+  localStorage.setItem('wb_categories', JSON.stringify(cats));
+}
+let CATEGORIES = loadCategories();
+
 let currentUser = null;
 let currentTab = 'all';
 let currentCategory = 'all';
@@ -795,10 +918,15 @@ function doLogin() {
   document.getElementById('navName').textContent = user.name;
   document.getElementById('navAvatar').textContent = user.avatar;
   document.getElementById('navRole').innerHTML = `<span class="role-badge role-${user.role}">${roleName(user.role)}</span>`;
-  // Hide admin-only nav
+  // สิทธิ์ตาม role
   if (user.role !== 'admin') document.getElementById('navUsers').style.display = 'none';
   if (user.role !== 'admin') document.getElementById('navConfig').style.display = 'none';
-  loadConfig(); renderPosts(); renderStats(); renderActivity(); renderUsers();
+  // ปุ่มเพิ่มหมวดหมู่ — admin และ mod
+  const btnCat = document.getElementById('btnAddCat');
+  if (canManageCategories()) btnCat.style.display = 'flex';
+  else btnCat.style.display = 'none';
+
+  loadConfig(); renderSidebarCategories(); renderPosts(); renderStats(); renderActivity(); renderUsers();
   showToast(`ยินดีต้อนรับ ${user.name} (${roleName(user.role)})`,'success');
 }
 function doLogout() {
@@ -808,6 +936,7 @@ function doLogout() {
 function roleName(r) { return {admin:'ผู้ดูแลระบบ',mod:'Moderator',member:'สมาชิก'}[r] || r; }
 function canEdit(post) { return currentUser && (currentUser.role==='admin' || currentUser.role==='mod' || post.authorId===currentUser.id); }
 function canPin() { return currentUser && (currentUser.role==='admin' || currentUser.role==='mod'); }
+function canManageCategories() { return currentUser && (currentUser.role==='admin' || currentUser.role==='mod'); }
 function canManageUsers() { return currentUser && currentUser.role==='admin'; }
 
 // ═══════════════════════════════════════════
@@ -843,9 +972,44 @@ function renderPosts() {
   updateCategoryBadges();
 }
 
+// แปลง Google Drive URL ให้แสดงรูปได้จริง
+function driveImgUrl(url) {
+  if (!url) return '';
+  // ถ้าเป็น dataURL (base64) ใช้ได้เลย
+  if (url.startsWith('data:')) return url;
+  // ดึง fileId จากรูปแบบต่างๆ
+  let id = '';
+  const m1 = url.match(/[?&]id=([^&]+)/);
+  const m2 = url.match(/\/d\/([^/]+)/);
+  const m3 = url.match(/\/file\/d\/([^/]+)/);
+  if (m1) id = m1[1];
+  else if (m3) id = m3[1];
+  else if (m2) id = m2[1];
+  if (!id) return url;
+  // ใช้ thumbnail API — ไม่ถูก block, โหลดเร็ว
+  return `https://drive.google.com/thumbnail?id=${id}&sz=w800`;
+}
+
+function driveImgTag(src, cls='post-image') {
+  const thumb = driveImgUrl(src);
+  return `<div class="drive-img-wrap" onclick="openLightbox('${src}')">
+    <div class="img-placeholder"><i class="fa-solid fa-image"></i><span>กำลังโหลด...</span></div>
+    <img class="${cls}" src="${thumb}" loading="lazy" data-raw="${src}"
+      onload="this.style.opacity='1';this.previousElementSibling.style.display='none'"
+      onerror="handleImgError(this)">
+    <div class="img-overlay"><i class="fa-solid fa-magnifying-glass-plus"></i></div>
+  </div>`;
+}
+
+function extractDriveId(url) {
+  if (!url) return '';
+  const m = (url.match(/[?&]id=([^&]+)/) || url.match(/\/d\/([^/]+)/) || url.match(/thumbnail\?id=([^&]+)/));
+  return m ? m[1] : '';
+}
+
 function postCard(p) {
   const imgHtml = p.images && p.images.length
-    ? `<div class="post-images cols-${Math.min(p.images.length,3)}">${p.images.slice(0,3).map(src=>`<img class="post-image" src="${src}" loading="lazy" onerror="this.style.display='none'">`).join('')}</div>`
+    ? `<div class="post-images cols-${Math.min(p.images.length,3)}">${p.images.slice(0,3).map(src=>driveImgTag(src)).join('')}</div>`
     : '';
   const tags = p.tags?.length ? `<div class="post-tags">${p.tags.map(t=>`<span class="tag">#${t}</span>`).join('')}</div>` : '';
   const badges = [
@@ -887,7 +1051,15 @@ function openDetail(id) {
   document.getElementById('postDetail').classList.add('active');
 
   const imgHtml = p.images?.length
-    ? `<div class="post-images cols-${Math.min(p.images.length,3)}" style="margin-top:16px;">${p.images.map(src=>`<img class="post-image" src="${src}">`).join('')}</div>`
+    ? `<div class="post-images cols-${Math.min(p.images.length,3)}" style="margin-top:16px;">
+        ${p.images.map(src=>`
+          <div class="drive-img-wrap" onclick="openLightbox('${src}')">
+            <div class="img-placeholder"><i class="fa-solid fa-image"></i><span>กำลังโหลด...</span></div>
+            <img class="post-image" src="${driveImgUrl(src)}" loading="lazy" data-raw="${src}"
+              onload="this.style.opacity='1';this.previousElementSibling.style.display='none'"
+              onerror="handleImgError(this)">
+          </div>`).join('')}
+      </div>`
     : '';
 
   document.getElementById('detailContent').innerHTML = `
@@ -1044,9 +1216,45 @@ function renderPreview() {
 }
 function removePreview(i) { selectedImages.splice(i,1); renderPreview(); }
 
+// ─────────────────────────────────────────────
+// API CALL HELPER — รองรับ Netlify proxy + direct
+// ─────────────────────────────────────────────
+function getApiEndpoint() {
+  // ถ้ารันบน Netlify (หรือ domain ใดก็ตาม) ใช้ /api/proxy
+  // ถ้ารันบน localhost / file:// ใช้ scriptUrl โดยตรง
+  const isNetlify = location.hostname.includes('netlify.app') ||
+                    location.hostname.includes('netlify.com');
+  const isLocalhost = location.hostname === 'localhost' ||
+                      location.hostname === '127.0.0.1' ||
+                      location.protocol === 'file:';
+  if (isNetlify) return '/api/proxy';
+  if (isLocalhost && CONFIG.scriptUrl) return CONFIG.scriptUrl;
+  // hosting อื่น: ลอง /api/proxy ก่อน fallback ไป scriptUrl
+  return '/api/proxy';
+}
+
+async function apiCall(params, method = 'POST') {
+  const endpoint = getApiEndpoint();
+  if (!endpoint && !CONFIG.scriptUrl) throw new Error('ยังไม่ได้ตั้งค่า Script URL');
+
+  if (method === 'GET') {
+    const qs = new URLSearchParams(params).toString();
+    const resp = await fetch(`${endpoint}?${qs}`);
+    return resp.json();
+  } else {
+    const resp = await fetch(endpoint, {
+      method : 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body   : JSON.stringify(params),
+    });
+    return resp.json();
+  }
+}
+
 async function uploadImagesToDrive() {
-  if (!selectedImages.length || !CONFIG.scriptUrl || !CONFIG.folderId) {
-    return selectedImages.map(i => i.dataUrl); // fallback: store as dataURL
+  if (!selectedImages.length) return [];
+  if (!CONFIG.scriptUrl && !location.hostname.includes('netlify')) {
+    return selectedImages.map(i => i.dataUrl); // fallback dataURL
   }
   const urls = [];
   document.getElementById('uploadProgress').style.display = 'block';
@@ -1054,12 +1262,15 @@ async function uploadImagesToDrive() {
     try {
       const progress = Math.round(((i+1)/selectedImages.length)*100);
       document.getElementById('uploadBar').style.width = progress+'%';
-      const resp = await fetch(CONFIG.scriptUrl, {
-        method:'POST',
-        body: JSON.stringify({ action:'uploadImage', folderId: CONFIG.folderId, fileName: selectedImages[i].file.name, base64: selectedImages[i].dataUrl.split(',')[1], mimeType: selectedImages[i].file.type })
+      const data = await apiCall({
+        action  : 'uploadImage',
+        folderId: CONFIG.folderId,
+        fileName: selectedImages[i].file.name,
+        base64  : selectedImages[i].dataUrl.split(',')[1],
+        mimeType: selectedImages[i].file.type,
       });
-      const data = await resp.json();
       if (data.url) urls.push(data.url);
+      else urls.push(selectedImages[i].dataUrl);
     } catch(e) { urls.push(selectedImages[i].dataUrl); }
   }
   document.getElementById('uploadProgress').style.display = 'none';
@@ -1070,13 +1281,10 @@ async function uploadImagesToDrive() {
 // GOOGLE SHEETS SYNC
 // ═══════════════════════════════════════════
 async function syncToSheet() {
-  if (!CONFIG.scriptUrl) return;
+  if (!CONFIG.scriptUrl && !location.hostname.includes('netlify')) return;
   try {
     document.getElementById('syncStatus').textContent = 'กำลังซิงค์...';
-    await fetch(CONFIG.scriptUrl, {
-      method:'POST',
-      body: JSON.stringify({ action:'writePosts', sheetId: CONFIG.sheetId, sheetName: CONFIG.sheetName, posts: POSTS })
-    });
+    await apiCall({ action:'writePosts', sheetId: CONFIG.sheetId, sheetName: CONFIG.sheetName, posts: POSTS });
     document.getElementById('syncStatus').textContent = 'ซิงค์แล้ว ✓';
   } catch(e) {
     document.getElementById('syncStatus').textContent = 'ซิงค์ไม่สำเร็จ';
@@ -1084,14 +1292,14 @@ async function syncToSheet() {
 }
 
 async function syncData() {
-  if (!CONFIG.scriptUrl || !CONFIG.sheetId) { showToast('กรุณาตั้งค่า Script URL และ Sheet ID ก่อน','error'); return; }
+  if (!CONFIG.sheetId) { showToast('กรุณาตั้งค่า Sheet ID ก่อน','error'); return; }
   showLoading(true);
   document.getElementById('syncStatus').textContent = 'กำลังดึงข้อมูล...';
   try {
-    const resp = await fetch(`${CONFIG.scriptUrl}?action=getPosts&sheetId=${CONFIG.sheetId}&sheetName=${CONFIG.sheetName}`);
-    const data = await resp.json();
+    const data = await apiCall({ action:'getPosts', sheetId: CONFIG.sheetId, sheetName: CONFIG.sheetName }, 'GET');
     if (data.posts) { POSTS = data.posts; renderPosts(); renderStats(); showToast('ซิงค์ข้อมูลสำเร็จ','success'); }
-  } catch(e) { showToast('เชื่อมต่อไม่สำเร็จ ตรวจสอบ Script URL','error'); }
+    else showToast('ไม่พบข้อมูล: ' + (data.error||''), 'error');
+  } catch(e) { showToast('เชื่อมต่อไม่สำเร็จ: '+e.message,'error'); }
   document.getElementById('syncStatus').textContent = 'เชื่อมต่อแล้ว';
   showLoading(false);
 }
@@ -1134,13 +1342,12 @@ function saveConfig() {
 }
 
 async function testConnection() {
-  if (!CONFIG.scriptUrl) { showToast('กรุณาใส่ Script URL ก่อน','error'); return; }
   showLoading(true);
   try {
-    const r = await fetch(CONFIG.scriptUrl+'?action=ping', {method:'GET'});
-    const d = await r.json();
-    showToast('เชื่อมต่อสำเร็จ: '+JSON.stringify(d),'success');
-  } catch(e) { showToast('เชื่อมต่อไม่สำเร็จ: '+e.message,'error'); }
+    const d = await apiCall({ action:'ping' }, 'GET');
+    if (d.success) showToast('✓ เชื่อมต่อสำเร็จ — ' + (d.message||''), 'success');
+    else showToast('Apps Script ตอบ: ' + (d.error||JSON.stringify(d)), 'error');
+  } catch(e) { showToast('เชื่อมต่อไม่สำเร็จ: ' + e.message, 'error'); }
   showLoading(false);
 }
 
@@ -1201,13 +1408,77 @@ function deleteUser(id) {
   if (i>-1) { USERS_DB.splice(i,1); renderUsers(); showToast('ลบผู้ใช้แล้ว','success'); }
 }
 
+// ─── autoFillCatKey ───
+function autoFillCatKey(name) {
+  const keyEl = document.getElementById('catKey');
+  if (!keyEl || keyEl.value) return;
+  const map = {'ประกาศ':'announcement','ทั่วไป':'general','ถาม':'question','งาน':'work','ข่าว':'news','กีฬา':'sport','เทคโนโลยี':'tech','สุขภาพ':'health','การศึกษา':'education','บันเทิง':'entertainment'};
+  const found = Object.entries(map).find(([th]) => name.includes(th));
+  if (found) keyEl.value = found[1];
+}
+
 // ═══════════════════════════════════════════
-// FILTERS & SORT
+// IMAGE ERROR HANDLING & LIGHTBOX
+// ═══════════════════════════════════════════
+function handleImgError(img) {
+  const raw = img.getAttribute('data-raw') || '';
+  const id  = extractDriveId(raw);
+  if (!id) { showBrokenImg(img); return; }
+
+  const retried = img.getAttribute('data-retry') || '0';
+  if (retried === '0') {
+    // ลอง lh3 URL
+    img.setAttribute('data-retry','1');
+    img.src = `https://lh3.googleusercontent.com/d/${id}`;
+  } else if (retried === '1') {
+    // ลอง thumbnail ขนาดเล็ก
+    img.setAttribute('data-retry','2');
+    img.src = `https://drive.google.com/thumbnail?id=${id}&sz=w600`;
+  } else {
+    showBrokenImg(img);
+  }
+}
+
+function showBrokenImg(img) {
+  img.style.opacity = '1';
+  img.style.minHeight = '120px';
+  const wrap = img.closest('.drive-img-wrap');
+  if (wrap) {
+    const placeholder = wrap.querySelector('.img-placeholder');
+    if (placeholder) {
+      placeholder.style.display = 'flex';
+      placeholder.innerHTML = `<i class="fa-solid fa-triangle-exclamation" style="font-size:2rem;color:var(--warning)"></i><span>โหลดรูปไม่ได้</span><small style="font-size:0.7rem;text-align:center;padding:0 8px;">ตรวจสอบสิทธิ์ Drive folder</small>`;
+    }
+  }
+}
+
+function openLightbox(rawUrl) {
+  const id  = extractDriveId(rawUrl);
+  const src = id ? `https://drive.google.com/thumbnail?id=${id}&sz=w1200` : rawUrl;
+  const lb  = document.getElementById('lightbox');
+  const img = document.getElementById('lightboxImg');
+  const lnk = document.getElementById('lightboxLink');
+  img.src = src;
+  img.onerror = () => { if (id) img.src = `https://lh3.googleusercontent.com/d/${id}`; };
+  if (id) lnk.href = `https://drive.google.com/file/d/${id}/view`;
+  lb.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('open');
+  document.body.style.overflow = '';
+  setTimeout(() => { document.getElementById('lightboxImg').src = ''; }, 300);
+}
+
+// Keyboard ESC to close lightbox
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+
+// ═══════════════════════════════════════════
 // ═══════════════════════════════════════════
 function filterCategory(cat) {
   currentCategory = cat;
-  document.querySelectorAll('.category-item').forEach(el => el.classList.remove('active'));
-  event.currentTarget.classList.add('active');
+  renderSidebarCategories();
   renderPosts();
 }
 function filterSearch() { currentSearchQ = document.getElementById('searchInput').value.trim(); renderPosts(); }
@@ -1219,12 +1490,110 @@ function switchTab(tab, el) {
 }
 function sortPosts(by) { if (by==='newest') POSTS.sort((a,b)=>b.id-a.id); else if (by==='popular') POSTS.sort((a,b)=>b.views-a.views); else POSTS.sort((a,b)=>(b.comments?.length||0)-(a.comments?.length||0)); renderPosts(); }
 
-function updateCategoryBadges() {
-  document.getElementById('cat-all').textContent = POSTS.length;
-  document.getElementById('cat-ann').textContent = POSTS.filter(p=>p.category==='announcement').length;
-  document.getElementById('cat-gen').textContent = POSTS.filter(p=>p.category==='general').length;
-  document.getElementById('cat-q').textContent = POSTS.filter(p=>p.category==='question').length;
-  document.getElementById('cat-work').textContent = POSTS.filter(p=>p.category==='work').length;
+function updateCategoryBadges() { renderSidebarCategories(); }
+
+function renderSidebarCategories() {
+  const list = document.getElementById('categoryList');
+  if (!list) return;
+  list.innerHTML = CATEGORIES.map(c => {
+    const count = c.key === 'all' ? POSTS.length : POSTS.filter(p => p.category === c.key).length;
+    const isActive = currentCategory === c.key;
+    return `<a class="category-item ${isActive?'active':''}" onclick="filterCategory('${c.key}')">
+      <i class="${c.icon}" style="color:${c.color}"></i> ${esc(c.name)}
+      <span class="badge">${count}</span>
+    </a>`;
+  }).join('');
+  // sync postCategory select ใน modal
+  const sel = document.getElementById('postCategory');
+  if (sel) {
+    const cur = sel.value;
+    sel.innerHTML = CATEGORIES.filter(c => c.key !== 'all').map(c =>
+      `<option value="${c.key}" ${cur===c.key?'selected':''}>${esc(c.name)}</option>`
+    ).join('');
+  }
+}
+
+// ═══════════════════════════════════════════
+// CATEGORY MANAGEMENT
+// ═══════════════════════════════════════════
+function openCategoryModal() {
+  if (!canManageCategories()) { showToast('ไม่มีสิทธิ์จัดการหมวดหมู่','error'); return; }
+  document.getElementById('catName').value = '';
+  document.getElementById('catKey').value  = '';
+  document.getElementById('catIcon').value = 'fa-solid fa-tag';
+  document.getElementById('catColor').value = '#14c8a0';
+  updateCatPreview();
+  renderCatManageList();
+  openModal('categoryModal');
+}
+
+function updateCatPreview() {
+  const icon  = document.getElementById('catIcon').value.trim()  || 'fa-solid fa-tag';
+  const color = document.getElementById('catColor').value        || '#14c8a0';
+  const name  = document.getElementById('catName').value.trim()  || 'ตัวอย่าง';
+  const el    = document.getElementById('catPreviewIcon');
+  const nameEl= document.getElementById('catPreviewName');
+  if (el) { el.className = icon; el.style.color = color; }
+  if (nameEl) nameEl.textContent = name;
+}
+
+function addCategory() {
+  const name  = document.getElementById('catName').value.trim();
+  const key   = document.getElementById('catKey').value.trim();
+  const icon  = document.getElementById('catIcon').value.trim()  || 'fa-solid fa-tag';
+  const color = document.getElementById('catColor').value        || '#14c8a0';
+
+  if (!name) { showToast('กรุณากรอกชื่อหมวดหมู่','error'); return; }
+  if (!key)  { showToast('กรุณากรอก key ภาษาอังกฤษ','error'); return; }
+  if (CATEGORIES.find(c => c.key === key)) { showToast(`key "${key}" มีอยู่แล้ว`, 'error'); return; }
+
+  CATEGORIES.push({ key, name, icon, color, builtin: false });
+  saveCategories(CATEGORIES);
+  renderSidebarCategories();
+  renderCatManageList();
+  // reset form
+  document.getElementById('catName').value = '';
+  document.getElementById('catKey').value  = '';
+  document.getElementById('catIcon').value = 'fa-solid fa-tag';
+  document.getElementById('catColor').value = '#14c8a0';
+  updateCatPreview();
+  showToast(`เพิ่มหมวดหมู่ "${name}" แล้ว`, 'success');
+}
+
+function deleteCategory(key) {
+  const cat = CATEGORIES.find(c => c.key === key);
+  if (!cat) return;
+  if (cat.builtin) { showToast('ไม่สามารถลบหมวดหมู่ default ได้','error'); return; }
+  const used = POSTS.filter(p => p.category === key).length;
+  if (used > 0 && !confirm(`มีกระทู้ ${used} รายการในหมวดนี้\nยืนยันลบหมวดหมู่?`)) return;
+  CATEGORIES = CATEGORIES.filter(c => c.key !== key);
+  saveCategories(CATEGORIES);
+  if (currentCategory === key) currentCategory = 'all';
+  renderSidebarCategories();
+  renderCatManageList();
+  showToast(`ลบหมวดหมู่ "${cat.name}" แล้ว`, 'success');
+}
+
+function renderCatManageList() {
+  const el = document.getElementById('catManageList');
+  if (!el) return;
+  el.innerHTML = CATEGORIES.map(c => {
+    const count = c.key === 'all' ? POSTS.length : POSTS.filter(p => p.category === c.key).length;
+    return `
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;">
+      <div style="width:32px;height:32px;border-radius:8px;background:${c.color}22;border:1px solid ${c.color}44;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+        <i class="${c.icon}" style="color:${c.color};font-size:0.9rem;"></i>
+      </div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-weight:600;font-size:0.875rem;">${esc(c.name)}</div>
+        <div style="font-size:0.75rem;color:var(--text-muted);">key: <code style="background:var(--bg-card-hover);padding:1px 5px;border-radius:4px;">${c.key}</code> · ${count} กระทู้</div>
+      </div>
+      ${c.builtin
+        ? `<span style="font-size:0.7rem;padding:2px 8px;border-radius:20px;background:rgba(99,102,241,0.1);color:var(--accent-2);border:1px solid rgba(99,102,241,0.2);">default</span>`
+        : `<button class="btn btn-danger btn-sm btn-icon" onclick="deleteCategory('${c.key}')" title="ลบ"><i class="fa-solid fa-trash"></i></button>`
+      }
+    </div>`;
+  }).join('');
 }
 
 // ═══════════════════════════════════════════
@@ -1276,20 +1645,4 @@ function toggleTheme() {
   const root = document.documentElement;
   const curr = root.getAttribute('data-theme');
   root.setAttribute('data-theme', curr==='dark'?'light':'dark');
-  localStorage.setItem('wb_theme', root.getAttribute('data-theme'));
-}
-
-// Close modals on overlay click
-document.querySelectorAll('.modal-overlay').forEach(overlay => {
-  overlay.addEventListener('click', e => { if(e.target===overlay) overlay.classList.remove('open'); });
-});
-
-// Init
-(function() {
-  const saved = localStorage.getItem('wb_theme');
-  if (saved) document.documentElement.setAttribute('data-theme', saved);
-  // Admin auto-login for demo convenience
-})();
-</script>
-</body>
-</html>
+  localStorage.setItem('wb_theme',
