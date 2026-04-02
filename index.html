@@ -1,0 +1,1295 @@
+<!DOCTYPE html>
+<html lang="th" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WebBoard Pro — ระบบกระดานสนทนา</title>
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<style>
+  :root {
+    --bg-base: #0a0e1a;
+    --bg-card: rgba(255,255,255,0.04);
+    --bg-card-hover: rgba(255,255,255,0.07);
+    --bg-glass: rgba(15,20,40,0.8);
+    --border: rgba(255,255,255,0.08);
+    --border-accent: rgba(20,200,160,0.3);
+    --text-primary: #e8edf5;
+    --text-secondary: #8892a4;
+    --text-muted: #4a5568;
+    --accent: #14c8a0;
+    --accent-2: #6366f1;
+    --accent-glow: rgba(20,200,160,0.15);
+    --danger: #f87171;
+    --warning: #fbbf24;
+    --success: #34d399;
+    --shadow: 0 8px 32px rgba(0,0,0,0.4);
+    --shadow-sm: 0 2px 12px rgba(0,0,0,0.3);
+    --radius: 16px;
+    --radius-sm: 10px;
+  }
+  [data-theme="light"] {
+    --bg-base: #f0f4f8;
+    --bg-card: rgba(255,255,255,0.85);
+    --bg-card-hover: rgba(255,255,255,0.95);
+    --bg-glass: rgba(240,244,248,0.9);
+    --border: rgba(0,0,0,0.08);
+    --border-accent: rgba(20,200,160,0.4);
+    --text-primary: #1a202c;
+    --text-secondary: #4a5568;
+    --text-muted: #a0aec0;
+    --accent-glow: rgba(20,200,160,0.1);
+    --shadow: 0 8px 32px rgba(0,0,0,0.12);
+    --shadow-sm: 0 2px 12px rgba(0,0,0,0.08);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Sarabun', sans-serif;
+    background: var(--bg-base);
+    color: var(--text-primary);
+    min-height: 100vh;
+    transition: background 0.3s, color 0.3s;
+    overflow-x: hidden;
+  }
+
+  [data-theme="dark"] body {
+    background-image:
+      radial-gradient(ellipse 80% 60% at 10% -10%, rgba(99,102,241,0.12) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 90% 110%, rgba(20,200,160,0.10) 0%, transparent 60%);
+    background-attachment: fixed;
+  }
+
+  /* ─── SCROLLBAR ─── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* ─── GLASS MIXIN ─── */
+  .glass {
+    background: var(--bg-card);
+    backdrop-filter: blur(20px) saturate(1.5);
+    -webkit-backdrop-filter: blur(20px) saturate(1.5);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+  }
+
+  /* ─── NAVBAR ─── */
+  .navbar {
+    position: sticky; top: 0; z-index: 100;
+    background: var(--bg-glass);
+    backdrop-filter: blur(24px) saturate(1.8);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    height: 64px;
+    display: flex; align-items: center; gap: 16px;
+  }
+  .navbar-brand {
+    font-family: 'Prompt', sans-serif;
+    font-weight: 700; font-size: 1.2rem;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    display: flex; align-items: center; gap: 10px;
+    text-decoration: none;
+  }
+  .navbar-brand i { font-size: 1.4rem; background: linear-gradient(135deg,var(--accent),var(--accent-2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+  .nav-links { display: flex; gap: 4px; margin-left: 8px; flex: 1; }
+  .nav-link {
+    padding: 6px 14px; border-radius: 8px; font-size: 0.875rem;
+    color: var(--text-secondary); text-decoration: none; transition: all 0.2s;
+    display: flex; align-items: center; gap: 6px; cursor: pointer; border: none; background: none;
+    font-family: 'Sarabun', sans-serif;
+  }
+  .nav-link:hover, .nav-link.active { background: var(--accent-glow); color: var(--accent); }
+  .nav-right { display: flex; align-items: center; gap: 10px; margin-left: auto; }
+
+  .btn {
+    padding: 8px 18px; border-radius: 10px; font-size: 0.875rem; font-weight: 500;
+    cursor: pointer; border: none; transition: all 0.25s; display: inline-flex; align-items: center; gap: 8px;
+    font-family: 'Sarabun', sans-serif;
+  }
+  .btn-primary { background: var(--accent); color: #0a0e1a; }
+  .btn-primary:hover { background: #10b991; transform: translateY(-1px); box-shadow: 0 4px 20px rgba(20,200,160,0.4); }
+  .btn-ghost { background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border); }
+  .btn-ghost:hover { background: var(--bg-card-hover); border-color: var(--border-accent); }
+  .btn-danger { background: rgba(248,113,113,0.15); color: var(--danger); border: 1px solid rgba(248,113,113,0.2); }
+  .btn-danger:hover { background: rgba(248,113,113,0.25); }
+  .btn-sm { padding: 5px 12px; font-size: 0.8rem; border-radius: 8px; }
+  .btn-icon { width: 36px; height: 36px; padding: 0; justify-content: center; }
+
+  /* ─── THEME TOGGLE ─── */
+  .theme-toggle {
+    width: 42px; height: 24px; border-radius: 12px;
+    background: var(--bg-card); border: 1px solid var(--border);
+    cursor: pointer; position: relative; transition: all 0.3s;
+  }
+  .theme-toggle::after {
+    content: ''; position: absolute; top: 3px; left: 3px;
+    width: 16px; height: 16px; border-radius: 50%;
+    background: var(--accent); transition: all 0.3s;
+  }
+  [data-theme="light"] .theme-toggle::after { transform: translateX(18px); }
+
+  /* ─── LAYOUT ─── */
+  .app-layout { display: flex; min-height: calc(100vh - 64px); }
+  .sidebar {
+    width: 260px; flex-shrink: 0;
+    padding: 20px 16px;
+    border-right: 1px solid var(--border);
+    position: sticky; top: 64px; height: calc(100vh - 64px);
+    overflow-y: auto;
+  }
+  .main-content { flex: 1; padding: 24px; max-width: 900px; }
+  .right-panel { width: 300px; flex-shrink: 0; padding: 20px 16px; }
+
+  /* ─── SIDEBAR ─── */
+  .sidebar-section { margin-bottom: 24px; }
+  .sidebar-label {
+    font-size: 0.7rem; font-weight: 600; letter-spacing: 1.5px;
+    text-transform: uppercase; color: var(--text-muted);
+    padding: 0 8px; margin-bottom: 8px;
+  }
+  .category-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 12px; border-radius: 10px; cursor: pointer;
+    transition: all 0.2s; font-size: 0.9rem; color: var(--text-secondary);
+    text-decoration: none;
+  }
+  .category-item:hover { background: var(--bg-card); color: var(--text-primary); }
+  .category-item.active { background: var(--accent-glow); color: var(--accent); border: 1px solid var(--border-accent); }
+  .category-item .badge {
+    margin-left: auto; font-size: 0.7rem; padding: 2px 8px;
+    background: var(--bg-card); border-radius: 20px; color: var(--text-muted);
+  }
+  .category-item.active .badge { background: rgba(20,200,160,0.15); color: var(--accent); }
+
+  /* ─── POST CARD ─── */
+  .post-card {
+    background: var(--bg-card);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 14px;
+    transition: all 0.25s;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  .post-card::before {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+    background: transparent; border-radius: 3px 0 0 3px; transition: all 0.2s;
+  }
+  .post-card:hover { background: var(--bg-card-hover); border-color: var(--border-accent); transform: translateX(3px); }
+  .post-card:hover::before { background: var(--accent); }
+  .post-card.pinned::before { background: var(--warning); }
+  .post-card.hot::before { background: #f97316; }
+
+  .post-header { display: flex; align-items: flex-start; gap: 12px; }
+  .avatar {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 0.9rem; color: #fff; flex-shrink: 0;
+    font-family: 'Prompt', sans-serif;
+  }
+  .post-meta { flex: 1; }
+  .post-author { font-weight: 600; font-size: 0.9rem; color: var(--text-primary); }
+  .post-time { font-size: 0.78rem; color: var(--text-muted); margin-top: 2px; }
+  .post-title {
+    font-family: 'Prompt', sans-serif; font-weight: 600; font-size: 1rem;
+    color: var(--text-primary); margin: 10px 0 6px; line-height: 1.5;
+  }
+  .post-excerpt { font-size: 0.875rem; color: var(--text-secondary); line-height: 1.7; }
+  .post-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+  .tag {
+    padding: 3px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 500;
+    background: rgba(99,102,241,0.12); color: var(--accent-2); border: 1px solid rgba(99,102,241,0.2);
+  }
+  .post-footer { display: flex; align-items: center; gap: 16px; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); }
+  .post-stat { display: flex; align-items: center; gap: 5px; font-size: 0.8rem; color: var(--text-muted); }
+  .post-stat i { font-size: 0.85rem; }
+  .post-badges { display: flex; gap: 6px; margin-left: auto; }
+  .badge-pill {
+    padding: 2px 8px; border-radius: 20px; font-size: 0.7rem; font-weight: 600;
+  }
+  .badge-pinned { background: rgba(251,191,36,0.15); color: var(--warning); }
+  .badge-hot { background: rgba(249,115,22,0.15); color: #f97316; }
+  .badge-new { background: rgba(52,211,153,0.15); color: var(--success); }
+
+  /* ─── POST IMAGES ─── */
+  .post-images { display: grid; gap: 8px; margin-top: 12px; }
+  .post-images.cols-1 { grid-template-columns: 1fr; }
+  .post-images.cols-2 { grid-template-columns: 1fr 1fr; }
+  .post-images.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .post-image {
+    width: 100%; height: 180px; object-fit: cover;
+    border-radius: 10px; border: 1px solid var(--border);
+  }
+
+  /* ─── MODAL ─── */
+  .modal-overlay {
+    position: fixed; inset: 0; z-index: 200;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(8px);
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+    opacity: 0; pointer-events: none; transition: opacity 0.25s;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+  .modal {
+    background: var(--bg-glass);
+    backdrop-filter: blur(30px);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 28px;
+    width: 100%; max-width: 640px;
+    max-height: 90vh; overflow-y: auto;
+    transform: scale(0.95); transition: transform 0.25s;
+    box-shadow: var(--shadow);
+  }
+  .modal-overlay.open .modal { transform: scale(1); }
+  .modal-title {
+    font-family: 'Prompt', sans-serif; font-weight: 700; font-size: 1.2rem;
+    margin-bottom: 20px; display: flex; align-items: center; gap: 10px;
+  }
+  .modal-title i { color: var(--accent); }
+
+  /* ─── FORM ─── */
+  .form-group { margin-bottom: 16px; }
+  .form-label { display: block; font-size: 0.85rem; font-weight: 500; color: var(--text-secondary); margin-bottom: 6px; }
+  .form-control {
+    width: 100%; padding: 10px 14px; border-radius: 10px; font-size: 0.9rem;
+    background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+    color: var(--text-primary); outline: none; transition: all 0.2s;
+    font-family: 'Sarabun', sans-serif;
+  }
+  [data-theme="light"] .form-control { background: rgba(0,0,0,0.04); }
+  .form-control:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+  textarea.form-control { resize: vertical; min-height: 120px; line-height: 1.7; }
+  select.form-control { cursor: pointer; }
+
+  /* ─── IMAGE UPLOAD ─── */
+  .upload-zone {
+    border: 2px dashed var(--border);
+    border-radius: 12px; padding: 24px;
+    text-align: center; cursor: pointer;
+    transition: all 0.2s; position: relative;
+  }
+  .upload-zone:hover { border-color: var(--accent); background: var(--accent-glow); }
+  .upload-zone i { font-size: 2rem; color: var(--text-muted); margin-bottom: 8px; display: block; }
+  .upload-zone p { font-size: 0.875rem; color: var(--text-muted); }
+  .upload-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+  .upload-preview { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .preview-img {
+    width: 80px; height: 80px; border-radius: 8px; object-fit: cover;
+    border: 1px solid var(--border); position: relative;
+  }
+  .preview-item { position: relative; }
+  .preview-remove {
+    position: absolute; top: -6px; right: -6px; width: 20px; height: 20px;
+    background: var(--danger); border-radius: 50%; border: none; cursor: pointer;
+    color: #fff; font-size: 0.65rem; display: flex; align-items: center; justify-content: center;
+  }
+
+  /* ─── LOADER / STATUS ─── */
+  .loading-bar {
+    position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 999;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    transform: scaleX(0); transform-origin: left;
+    transition: transform 0.3s; border-radius: 0 3px 3px 0;
+  }
+  .loading-bar.show { animation: loading 1.8s ease-in-out infinite; }
+  @keyframes loading {
+    0%   { transform: scaleX(0); }
+    50%  { transform: scaleX(0.7); }
+    100% { transform: scaleX(1); opacity: 0; }
+  }
+  .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 500; display: flex; flex-direction: column; gap: 8px; }
+  .toast {
+    padding: 12px 18px; border-radius: 12px; font-size: 0.875rem; font-weight: 500;
+    display: flex; align-items: center; gap: 10px; min-width: 240px;
+    backdrop-filter: blur(20px); animation: slideUp 0.3s ease;
+    box-shadow: var(--shadow);
+  }
+  @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  .toast.success { background: rgba(52,211,153,0.15); border: 1px solid rgba(52,211,153,0.3); color: var(--success); }
+  .toast.error { background: rgba(248,113,113,0.15); border: 1px solid rgba(248,113,113,0.3); color: var(--danger); }
+  .toast.info { background: rgba(99,102,241,0.15); border: 1px solid rgba(99,102,241,0.3); color: var(--accent-2); }
+
+  /* ─── TABS ─── */
+  .tabs { display: flex; gap: 4px; margin-bottom: 20px; background: var(--bg-card); border-radius: 12px; padding: 4px; border: 1px solid var(--border); }
+  .tab-btn {
+    flex: 1; padding: 8px 12px; border-radius: 9px; border: none; background: none;
+    color: var(--text-secondary); font-size: 0.85rem; cursor: pointer; transition: all 0.2s;
+    font-family: 'Sarabun', sans-serif; font-weight: 500;
+  }
+  .tab-btn.active { background: var(--accent); color: #0a0e1a; }
+
+  /* ─── SEARCH ─── */
+  .search-bar {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 8px 14px; margin-bottom: 20px;
+    transition: border-color 0.2s;
+  }
+  .search-bar:focus-within { border-color: var(--accent); }
+  .search-bar i { color: var(--text-muted); }
+  .search-bar input {
+    flex: 1; background: none; border: none; outline: none;
+    color: var(--text-primary); font-size: 0.9rem; font-family: 'Sarabun', sans-serif;
+  }
+
+  /* ─── LOGIN PAGE ─── */
+  .login-page {
+    position: fixed; inset: 0; z-index: 300;
+    background: var(--bg-base);
+    display: flex; align-items: center; justify-content: center;
+  }
+  [data-theme="dark"] .login-page {
+    background-image:
+      radial-gradient(ellipse 70% 60% at 20% 30%, rgba(99,102,241,0.15) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 50% at 80% 70%, rgba(20,200,160,0.12) 0%, transparent 60%);
+  }
+  .login-card {
+    background: var(--bg-glass);
+    backdrop-filter: blur(30px);
+    border: 1px solid var(--border);
+    border-radius: 24px; padding: 40px;
+    width: 100%; max-width: 420px;
+    box-shadow: var(--shadow);
+  }
+  .login-logo {
+    text-align: center; margin-bottom: 28px;
+  }
+  .login-logo .icon {
+    width: 64px; height: 64px; border-radius: 18px; margin: 0 auto 12px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    display: flex; align-items: center; justify-content: center; font-size: 1.8rem; color: #fff;
+  }
+  .login-logo h1 { font-family: 'Prompt', sans-serif; font-size: 1.5rem; font-weight: 700; }
+  .login-logo p { color: var(--text-muted); font-size: 0.875rem; margin-top: 4px; }
+  .divider { height: 1px; background: var(--border); margin: 20px 0; }
+
+  /* ─── ROLE BADGE ─── */
+  .role-badge {
+    padding: 3px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.5px;
+  }
+  .role-admin { background: rgba(248,113,113,0.15); color: var(--danger); border: 1px solid rgba(248,113,113,0.2); }
+  .role-mod { background: rgba(251,191,36,0.15); color: var(--warning); border: 1px solid rgba(251,191,36,0.2); }
+  .role-member { background: rgba(20,200,160,0.12); color: var(--accent); border: 1px solid var(--border-accent); }
+
+  /* ─── CONFIG PANEL ─── */
+  .config-section {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 20px; margin-bottom: 16px;
+  }
+  .config-title { font-family: 'Prompt', sans-serif; font-weight: 600; font-size: 0.95rem; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+  .config-title i { color: var(--accent); }
+
+  /* ─── DETAIL VIEW ─── */
+  .post-detail { display: none; }
+  .post-detail.active { display: block; }
+  .board-list.hidden { display: none; }
+  .back-btn { display: flex; align-items: center; gap: 6px; color: var(--text-secondary); cursor: pointer; border: none; background: none; font-family: 'Sarabun', sans-serif; font-size: 0.875rem; margin-bottom: 16px; padding: 6px 0; transition: color 0.2s; }
+  .back-btn:hover { color: var(--accent); }
+
+  .detail-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; }
+  .detail-content { font-size: 0.95rem; line-height: 1.9; color: var(--text-secondary); margin: 16px 0; white-space: pre-wrap; }
+  .comment-section { margin-top: 28px; }
+  .comment-title { font-family: 'Prompt', sans-serif; font-weight: 600; font-size: 1rem; margin-bottom: 16px; }
+  .comment-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 10px; }
+  .comment-input { display: flex; gap: 10px; margin-top: 16px; }
+  .comment-input .form-control { flex: 1; }
+
+  /* ─── RIGHT PANEL ─── */
+  .panel-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 14px; }
+  .panel-title { font-weight: 600; font-size: 0.875rem; margin-bottom: 12px; color: var(--text-primary); display: flex; align-items: center; gap: 8px; }
+  .panel-title i { color: var(--accent); }
+  .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .stat-item { background: var(--bg-card-hover); border-radius: 10px; padding: 12px; text-align: center; border: 1px solid var(--border); }
+  .stat-num { font-family: 'Prompt', sans-serif; font-size: 1.5rem; font-weight: 700; color: var(--accent); }
+  .stat-label { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
+
+  .config-link { font-size: 0.8rem; color: var(--accent); text-decoration: none; cursor: pointer; margin-top: 4px; display: inline-block; }
+  .id-display { font-size: 0.75rem; color: var(--text-muted); background: var(--bg-card); border-radius: 6px; padding: 4px 8px; margin-top: 6px; word-break: break-all; font-family: monospace; }
+
+  /* ─── PERMISSION TABLE ─── */
+  .perm-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+  .perm-table th { padding: 8px 10px; background: rgba(255,255,255,0.03); color: var(--text-muted); font-weight: 600; text-align: left; border-bottom: 1px solid var(--border); }
+  .perm-table td { padding: 8px 10px; border-bottom: 1px solid var(--border); }
+  .perm-table tr:last-child td { border-bottom: none; }
+  .perm-check { color: var(--success); }
+  .perm-x { color: var(--text-muted); }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 1024px) { .right-panel { display: none; } }
+  @media (max-width: 768px) { .sidebar { display: none; } .main-content { padding: 16px; } }
+</style>
+</head>
+<body>
+
+<div class="loading-bar" id="loadingBar"></div>
+
+<!-- ─── LOGIN PAGE ─── -->
+<div class="login-page" id="loginPage">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="icon"><i class="fa-solid fa-comments"></i></div>
+      <h1>WebBoard Pro</h1>
+      <p>ระบบกระดานสนทนาองค์กร</p>
+    </div>
+    <div class="form-group">
+      <label class="form-label"><i class="fa-solid fa-envelope"></i> อีเมล</label>
+      <input class="form-control" type="email" id="loginEmail" placeholder="your@email.com" value="admin@example.com">
+    </div>
+    <div class="form-group">
+      <label class="form-label"><i class="fa-solid fa-lock"></i> รหัสผ่าน</label>
+      <input class="form-control" type="password" id="loginPass" placeholder="••••••••" value="admin123">
+    </div>
+    <button class="btn btn-primary" style="width:100%;justify-content:center;padding:12px;" onclick="doLogin()">
+      <i class="fa-solid fa-right-to-bracket"></i> เข้าสู่ระบบ
+    </button>
+    <div class="divider"></div>
+    <div style="font-size:0.8rem;color:var(--text-muted);text-align:center;">
+      Demo: admin@example.com / admin123 &nbsp;|&nbsp; mod@example.com / mod123 &nbsp;|&nbsp; user@example.com / user123
+    </div>
+  </div>
+</div>
+
+<!-- ─── NAVBAR ─── -->
+<nav class="navbar">
+  <a href="#" class="navbar-brand"><i class="fa-solid fa-comments"></i> WebBoard Pro</a>
+  <div class="nav-links">
+    <button class="nav-link active" onclick="switchView('board')"><i class="fa-solid fa-house"></i> หน้าหลัก</button>
+    <button class="nav-link" onclick="switchView('config')" id="navConfig"><i class="fa-solid fa-gear"></i> ตั้งค่า</button>
+    <button class="nav-link" onclick="switchView('users')" id="navUsers"><i class="fa-solid fa-users"></i> จัดการผู้ใช้</button>
+  </div>
+  <div class="nav-right">
+    <div style="display:flex;align-items:center;gap:6px;font-size:0.8rem;color:var(--text-muted)">
+      <i class="fa-solid fa-circle" style="font-size:0.5rem;color:var(--success)"></i>
+      <span id="syncStatus">เชื่อมต่อแล้ว</span>
+    </div>
+    <button class="btn btn-ghost btn-sm" onclick="syncData()"><i class="fa-solid fa-rotate"></i> ซิงค์</button>
+    <div class="theme-toggle" onclick="toggleTheme()" title="เปลี่ยนธีม"></div>
+    <div style="display:flex;align-items:center;gap:8px;padding:6px 12px;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;">
+      <div class="avatar" id="navAvatar" style="width:28px;height:28px;font-size:0.75rem;"></div>
+      <div>
+        <div style="font-size:0.8rem;font-weight:600" id="navName">Admin</div>
+        <div id="navRole"></div>
+      </div>
+    </div>
+    <button class="btn btn-ghost btn-sm btn-icon" onclick="doLogout()"><i class="fa-solid fa-right-from-bracket"></i></button>
+  </div>
+</nav>
+
+<!-- ─── MAIN APP ─── -->
+<div class="app-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">หมวดหมู่</div>
+      <a class="category-item active" onclick="filterCategory('all')">
+        <i class="fa-solid fa-border-all" style="color:var(--accent)"></i> ทั้งหมด
+        <span class="badge" id="cat-all">0</span>
+      </a>
+      <a class="category-item" onclick="filterCategory('announcement')">
+        <i class="fa-solid fa-bullhorn" style="color:var(--warning)"></i> ประกาศ
+        <span class="badge" id="cat-ann">0</span>
+      </a>
+      <a class="category-item" onclick="filterCategory('general')">
+        <i class="fa-solid fa-comments" style="color:var(--accent-2)"></i> ทั่วไป
+        <span class="badge" id="cat-gen">0</span>
+      </a>
+      <a class="category-item" onclick="filterCategory('question')">
+        <i class="fa-solid fa-circle-question" style="color:#60a5fa"></i> ถาม-ตอบ
+        <span class="badge" id="cat-q">0</span>
+      </a>
+      <a class="category-item" onclick="filterCategory('work')">
+        <i class="fa-solid fa-briefcase" style="color:#a78bfa"></i> งาน/โครงการ
+        <span class="badge" id="cat-work">0</span>
+      </a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">เรียงลำดับ</div>
+      <a class="category-item" onclick="sortPosts('newest')"><i class="fa-solid fa-clock-rotate-left"></i> ล่าสุด</a>
+      <a class="category-item" onclick="sortPosts('popular')"><i class="fa-solid fa-fire"></i> ยอดนิยม</a>
+      <a class="category-item" onclick="sortPosts('comments')"><i class="fa-solid fa-comment"></i> ความคิดเห็นมาก</a>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+
+    <!-- BOARD VIEW -->
+    <div id="viewBoard">
+      <!-- POST LIST -->
+      <div id="boardList" class="board-list">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap;">
+          <h2 style="font-family:'Prompt',sans-serif;font-weight:700;font-size:1.3rem;flex:1;">กระดานสนทนา</h2>
+          <button class="btn btn-primary" onclick="openPostModal()">
+            <i class="fa-solid fa-plus"></i> สร้างกระทู้ใหม่
+          </button>
+        </div>
+
+        <div class="search-bar">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" placeholder="ค้นหากระทู้..." id="searchInput" oninput="filterSearch()">
+        </div>
+
+        <div class="tabs">
+          <button class="tab-btn active" onclick="switchTab('all',this)">ทั้งหมด</button>
+          <button class="tab-btn" onclick="switchTab('pinned',this)">ปักหมุด</button>
+          <button class="tab-btn" onclick="switchTab('hot',this)">ยอดนิยม</button>
+          <button class="tab-btn" onclick="switchTab('mine',this)">ของฉัน</button>
+        </div>
+
+        <div id="postList"></div>
+        <div id="noPost" style="text-align:center;padding:40px;color:var(--text-muted);display:none;">
+          <i class="fa-solid fa-inbox" style="font-size:3rem;margin-bottom:12px;display:block;"></i>
+          ไม่พบกระทู้
+        </div>
+      </div>
+
+      <!-- POST DETAIL -->
+      <div id="postDetail" class="post-detail">
+        <button class="back-btn" onclick="backToList()"><i class="fa-solid fa-arrow-left"></i> กลับ</button>
+        <div class="detail-card" id="detailContent"></div>
+        <div class="comment-section" id="commentSection"></div>
+      </div>
+    </div>
+
+    <!-- CONFIG VIEW -->
+    <div id="viewConfig" style="display:none;">
+      <h2 style="font-family:'Prompt',sans-serif;font-weight:700;font-size:1.3rem;margin-bottom:20px;">
+        <i class="fa-solid fa-gear" style="color:var(--accent)"></i> ตั้งค่าระบบ
+      </h2>
+      <div class="config-section">
+        <div class="config-title"><i class="fa-brands fa-google"></i> Google Sheets API</div>
+        <div class="form-group">
+          <label class="form-label">Google Sheet ID</label>
+          <input class="form-control" id="cfg_sheetId" placeholder="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms">
+          <div class="id-display" id="sheetIdDisplay">ยังไม่ได้ตั้งค่า</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Sheet Name (Tab)</label>
+          <input class="form-control" id="cfg_sheetName" placeholder="Posts">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Apps Script Web App URL</label>
+          <input class="form-control" id="cfg_scriptUrl" placeholder="https://script.google.com/macros/s/.../exec">
+        </div>
+      </div>
+
+      <div class="config-section">
+        <div class="config-title"><i class="fa-brands fa-google-drive"></i> Google Drive (เก็บรูป)</div>
+        <div class="form-group">
+          <label class="form-label">Folder ID</label>
+          <input class="form-control" id="cfg_folderId" placeholder="1ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef">
+          <div class="id-display" id="folderIdDisplay">ยังไม่ได้ตั้งค่า</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">API Key (สำหรับอ่านไฟล์สาธารณะ)</label>
+          <input class="form-control" type="password" id="cfg_driveKey" placeholder="AIza...">
+        </div>
+      </div>
+
+      <div class="config-section">
+        <div class="config-title"><i class="fa-solid fa-shield-halved"></i> สิทธิ์การใช้งาน</div>
+        <table class="perm-table">
+          <thead>
+            <tr>
+              <th>สิทธิ์</th>
+              <th><span class="role-badge role-admin">Admin</span></th>
+              <th><span class="role-badge role-mod">Moderator</span></th>
+              <th><span class="role-badge role-member">Member</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>อ่านกระทู้</td><td class="perm-check">✓</td><td class="perm-check">✓</td><td class="perm-check">✓</td></tr>
+            <tr><td>สร้างกระทู้</td><td class="perm-check">✓</td><td class="perm-check">✓</td><td class="perm-check">✓</td></tr>
+            <tr><td>แก้ไขกระทู้ตัวเอง</td><td class="perm-check">✓</td><td class="perm-check">✓</td><td class="perm-check">✓</td></tr>
+            <tr><td>ลบกระทู้ตัวเอง</td><td class="perm-check">✓</td><td class="perm-check">✓</td><td class="perm-check">✓</td></tr>
+            <tr><td>แก้ไข/ลบกระทู้คนอื่น</td><td class="perm-check">✓</td><td class="perm-check">✓</td><td class="perm-x">—</td></tr>
+            <tr><td>ปักหมุดกระทู้</td><td class="perm-check">✓</td><td class="perm-check">✓</td><td class="perm-x">—</td></tr>
+            <tr><td>จัดการผู้ใช้</td><td class="perm-check">✓</td><td class="perm-x">—</td><td class="perm-x">—</td></tr>
+            <tr><td>ตั้งค่าระบบ</td><td class="perm-check">✓</td><td class="perm-x">—</td><td class="perm-x">—</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-primary" onclick="saveConfig()"><i class="fa-solid fa-floppy-disk"></i> บันทึกการตั้งค่า</button>
+        <button class="btn btn-ghost" onclick="testConnection()"><i class="fa-solid fa-plug-circle-check"></i> ทดสอบการเชื่อมต่อ</button>
+      </div>
+    </div>
+
+    <!-- USERS VIEW -->
+    <div id="viewUsers" style="display:none;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+        <h2 style="font-family:'Prompt',sans-serif;font-weight:700;font-size:1.3rem;flex:1;">
+          <i class="fa-solid fa-users" style="color:var(--accent)"></i> จัดการผู้ใช้
+        </h2>
+        <button class="btn btn-primary" onclick="openUserModal()"><i class="fa-solid fa-user-plus"></i> เพิ่มผู้ใช้</button>
+      </div>
+      <div id="userTable"></div>
+    </div>
+  </main>
+
+  <!-- RIGHT PANEL -->
+  <aside class="right-panel">
+    <div class="panel-card">
+      <div class="panel-title"><i class="fa-solid fa-chart-simple"></i> สถิติ</div>
+      <div class="stat-grid">
+        <div class="stat-item"><div class="stat-num" id="statPosts">0</div><div class="stat-label">กระทู้</div></div>
+        <div class="stat-item"><div class="stat-num" id="statComments">0</div><div class="stat-label">ความคิดเห็น</div></div>
+        <div class="stat-item"><div class="stat-num" id="statUsers">0</div><div class="stat-label">สมาชิก</div></div>
+        <div class="stat-item"><div class="stat-num" id="statViews">0</div><div class="stat-label">การดู</div></div>
+      </div>
+    </div>
+    <div class="panel-card">
+      <div class="panel-title"><i class="fa-brands fa-google"></i> Google Sheet</div>
+      <div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:8px;">Sheet ID:</div>
+      <div class="id-display" id="sideSheetId">ยังไม่ได้ตั้งค่า</div>
+      <div style="font-size:0.8rem;color:var(--text-muted);margin:8px 0;">Drive Folder:</div>
+      <div class="id-display" id="sideFolderId">ยังไม่ได้ตั้งค่า</div>
+      <a class="config-link" onclick="switchView('config')"><i class="fa-solid fa-pencil"></i> แก้ไขการตั้งค่า</a>
+    </div>
+    <div class="panel-card">
+      <div class="panel-title"><i class="fa-solid fa-bolt"></i> กิจกรรมล่าสุด</div>
+      <div id="activityFeed" style="font-size:0.8rem;color:var(--text-muted);display:flex;flex-direction:column;gap:8px;"></div>
+    </div>
+  </aside>
+</div>
+
+<!-- ─── POST MODAL ─── -->
+<div class="modal-overlay" id="postModal">
+  <div class="modal">
+    <div class="modal-title"><i class="fa-solid fa-pen-to-square"></i> <span id="postModalTitle">สร้างกระทู้ใหม่</span></div>
+    <input type="hidden" id="editPostId">
+    <div class="form-group">
+      <label class="form-label">หัวข้อกระทู้ *</label>
+      <input class="form-control" id="postTitle" placeholder="ระบุหัวข้อ...">
+    </div>
+    <div class="form-group">
+      <label class="form-label">หมวดหมู่</label>
+      <select class="form-control" id="postCategory">
+        <option value="general">ทั่วไป</option>
+        <option value="announcement">ประกาศ</option>
+        <option value="question">ถาม-ตอบ</option>
+        <option value="work">งาน/โครงการ</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">เนื้อหา *</label>
+      <textarea class="form-control" id="postContent" placeholder="เขียนเนื้อหากระทู้..."></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">แท็ก (คั่นด้วย ,)</label>
+      <input class="form-control" id="postTags" placeholder="เช่น IT, HR, ประกาศสำคัญ">
+    </div>
+    <div class="form-group">
+      <label class="form-label"><i class="fa-brands fa-google-drive"></i> แนบรูป (อัพโหลดไป Google Drive)</label>
+      <div class="upload-zone" id="uploadZone">
+        <i class="fa-solid fa-cloud-arrow-up"></i>
+        <p>คลิกหรือลากไฟล์มาวางที่นี่</p>
+        <p style="font-size:0.75rem;margin-top:4px;">PNG, JPG, GIF (สูงสุด 5MB/ไฟล์)</p>
+        <input type="file" id="imageInput" multiple accept="image/*" onchange="handleImageSelect(event)">
+      </div>
+      <div class="upload-preview" id="uploadPreview"></div>
+    </div>
+    <div id="uploadProgress" style="display:none;margin-top:8px;">
+      <div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:6px;">กำลังอัพโหลดรูป...</div>
+      <div style="height:4px;background:var(--border);border-radius:2px;overflow:hidden;">
+        <div id="uploadBar" style="height:100%;background:var(--accent);width:0%;transition:width 0.3s;border-radius:2px;"></div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:8px;">
+      <button class="btn btn-primary" onclick="submitPost()"><i class="fa-solid fa-paper-plane"></i> โพสต์</button>
+      <button class="btn btn-ghost" onclick="closeModal('postModal')"><i class="fa-solid fa-xmark"></i> ยกเลิก</button>
+      <label style="display:flex;align-items:center;gap:6px;margin-left:auto;font-size:0.85rem;color:var(--text-secondary);cursor:pointer;">
+        <input type="checkbox" id="postPinned" style="accent-color:var(--accent)"> ปักหมุด
+      </label>
+    </div>
+  </div>
+</div>
+
+<!-- ─── USER MODAL ─── -->
+<div class="modal-overlay" id="userModal">
+  <div class="modal" style="max-width:440px;">
+    <div class="modal-title"><i class="fa-solid fa-user-plus"></i> เพิ่ม/แก้ไขผู้ใช้</div>
+    <input type="hidden" id="editUserId">
+    <div class="form-group">
+      <label class="form-label">ชื่อ-นามสกุล *</label>
+      <input class="form-control" id="userName">
+    </div>
+    <div class="form-group">
+      <label class="form-label">อีเมล *</label>
+      <input class="form-control" type="email" id="userEmail">
+    </div>
+    <div class="form-group">
+      <label class="form-label">รหัสผ่าน</label>
+      <input class="form-control" type="password" id="userPass" placeholder="เว้นว่างถ้าไม่ต้องการเปลี่ยน">
+    </div>
+    <div class="form-group">
+      <label class="form-label">บทบาท</label>
+      <select class="form-control" id="userRole">
+        <option value="member">Member</option>
+        <option value="mod">Moderator</option>
+        <option value="admin">Admin</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:4px;">
+      <button class="btn btn-primary" onclick="submitUser()"><i class="fa-solid fa-floppy-disk"></i> บันทึก</button>
+      <button class="btn btn-ghost" onclick="closeModal('userModal')">ยกเลิก</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── TOAST ─── -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+// ═══════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════
+const USERS_DB = [
+  { id:1, name:'ผู้ดูแลระบบ', email:'admin@example.com', pass:'admin123', role:'admin', avatar:'AD' },
+  { id:2, name:'ผู้ดูแลกระดาน', email:'mod@example.com', pass:'mod123', role:'mod', avatar:'MO' },
+  { id:3, name:'สมาชิกทั่วไป', email:'user@example.com', pass:'user123', role:'member', avatar:'สม' },
+];
+
+let POSTS = [
+  { id:1, title:'ยินดีต้อนรับสู่ WebBoard Pro!', content:'ระบบกระดานสนทนาออนไลน์ พร้อมเชื่อมต่อ Google Sheets และ Google Drive\n\nรองรับการอัพโหลดรูปภาพ, ระบบสิทธิ์ผู้ใช้ และ Dark Mode', category:'announcement', author:'ผู้ดูแลระบบ', authorId:1, date:'2/4/2568', views:142, likes:18, pinned:true, tags:['ประกาศ','ระบบ'], images:[], comments:[{id:1,author:'สมาชิกทั่วไป',text:'ดีมากๆ เลยครับ!',date:'2/4/2568'}] },
+  { id:2, title:'วิธีการใช้งานระบบสำหรับสมาชิกใหม่', content:'สำหรับสมาชิกใหม่ที่เพิ่งเข้ามาใช้งาน สามารถเริ่มต้นได้ดังนี้\n1. สร้างกระทู้ใหม่โดยกดปุ่ม "สร้างกระทู้ใหม่"\n2. เลือกหมวดหมู่ที่เหมาะสม\n3. แนบรูปภาพได้ตามต้องการ\n4. กดโพสต์และรอการอนุมัติ', category:'general', author:'ผู้ดูแลกระดาน', authorId:2, date:'1/4/2568', views:87, likes:12, pinned:false, tags:['คู่มือ','เริ่มต้น'], images:[], comments:[] },
+  { id:3, title:'สอบถามวิธีตั้งค่า Google Sheet ID', content:'ใส่ Sheet ID ยังไงครับ? หา ID ได้จากที่ไหน', category:'question', author:'สมาชิกทั่วไป', authorId:3, date:'1/4/2568', views:34, likes:3, pinned:false, tags:['คำถาม'], images:[], comments:[{id:1,author:'ผู้ดูแลระบบ',text:'Sheet ID คือส่วนที่อยู่ใน URL ของ Google Sheet ครับ เช่น https://docs.google.com/spreadsheets/d/[ID ตรงนี้]/edit',date:'1/4/2568'}] },
+];
+
+let CONFIG = {
+  sheetId: localStorage.getItem('wb_sheetId') || '',
+  sheetName: localStorage.getItem('wb_sheetName') || 'Posts',
+  scriptUrl: localStorage.getItem('wb_scriptUrl') || '',
+  folderId: localStorage.getItem('wb_folderId') || '',
+  driveKey: localStorage.getItem('wb_driveKey') || '',
+};
+
+let currentUser = null;
+let currentTab = 'all';
+let currentCategory = 'all';
+let currentSearchQ = '';
+let selectedImages = [];
+let editingPostId = null;
+
+// ═══════════════════════════════════════════
+// AUTH
+// ═══════════════════════════════════════════
+function doLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass = document.getElementById('loginPass').value;
+  const user = USERS_DB.find(u => u.email === email && u.pass === pass);
+  if (!user) { showToast('อีเมลหรือรหัสผ่านไม่ถูกต้อง','error'); return; }
+  currentUser = user;
+  document.getElementById('loginPage').style.display = 'none';
+  document.getElementById('navName').textContent = user.name;
+  document.getElementById('navAvatar').textContent = user.avatar;
+  document.getElementById('navRole').innerHTML = `<span class="role-badge role-${user.role}">${roleName(user.role)}</span>`;
+  // Hide admin-only nav
+  if (user.role !== 'admin') document.getElementById('navUsers').style.display = 'none';
+  if (user.role !== 'admin') document.getElementById('navConfig').style.display = 'none';
+  loadConfig(); renderPosts(); renderStats(); renderActivity(); renderUsers();
+  showToast(`ยินดีต้อนรับ ${user.name} (${roleName(user.role)})`,'success');
+}
+function doLogout() {
+  currentUser = null;
+  document.getElementById('loginPage').style.display = 'flex';
+}
+function roleName(r) { return {admin:'ผู้ดูแลระบบ',mod:'Moderator',member:'สมาชิก'}[r] || r; }
+function canEdit(post) { return currentUser && (currentUser.role==='admin' || currentUser.role==='mod' || post.authorId===currentUser.id); }
+function canPin() { return currentUser && (currentUser.role==='admin' || currentUser.role==='mod'); }
+function canManageUsers() { return currentUser && currentUser.role==='admin'; }
+
+// ═══════════════════════════════════════════
+// VIEW SWITCHING
+// ═══════════════════════════════════════════
+function switchView(v) {
+  ['viewBoard','viewConfig','viewUsers'].forEach(id => document.getElementById(id).style.display='none');
+  document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
+  document.getElementById('view'+v.charAt(0).toUpperCase()+v.slice(1)).style.display='block';
+  event?.target?.classList?.add('active');
+  if (v==='config') loadConfigForm();
+}
+
+// ═══════════════════════════════════════════
+// POSTS
+// ═══════════════════════════════════════════
+function getFilteredPosts() {
+  let p = [...POSTS];
+  if (currentCategory !== 'all') p = p.filter(x => x.category === currentCategory);
+  if (currentSearchQ) p = p.filter(x => x.title.includes(currentSearchQ) || x.content.includes(currentSearchQ));
+  if (currentTab === 'pinned') p = p.filter(x => x.pinned);
+  if (currentTab === 'hot') p = p.sort((a,b) => b.views - a.views);
+  if (currentTab === 'mine') p = p.filter(x => x.authorId === currentUser?.id);
+  p.sort((a,b) => b.pinned - a.pinned || b.id - a.id);
+  return p;
+}
+
+function renderPosts() {
+  const list = document.getElementById('postList');
+  const posts = getFilteredPosts();
+  document.getElementById('noPost').style.display = posts.length ? 'none' : 'block';
+  list.innerHTML = posts.map(p => postCard(p)).join('');
+  updateCategoryBadges();
+}
+
+function postCard(p) {
+  const imgHtml = p.images && p.images.length
+    ? `<div class="post-images cols-${Math.min(p.images.length,3)}">${p.images.slice(0,3).map(src=>`<img class="post-image" src="${src}" loading="lazy" onerror="this.style.display='none'">`).join('')}</div>`
+    : '';
+  const tags = p.tags?.length ? `<div class="post-tags">${p.tags.map(t=>`<span class="tag">#${t}</span>`).join('')}</div>` : '';
+  const badges = [
+    p.pinned ? `<span class="badge-pill badge-pinned"><i class="fa-solid fa-thumbtack"></i> ปักหมุด</span>` : '',
+    p.views > 100 ? `<span class="badge-pill badge-hot"><i class="fa-solid fa-fire"></i> Hot</span>` : '',
+  ].filter(Boolean).join('');
+  return `
+    <div class="post-card ${p.pinned?'pinned':''} ${p.views>100?'hot':''}" onclick="openDetail(${p.id})">
+      <div class="post-header">
+        <div class="avatar" style="background:${avatarGrad(p.authorId)}">${p.author.charAt(0)}</div>
+        <div class="post-meta">
+          <div class="post-author">${esc(p.author)} <span class="role-badge role-${getRole(p.authorId)}">${roleName(getRole(p.authorId))}</span></div>
+          <div class="post-time"><i class="fa-regular fa-clock"></i> ${p.date} · <i class="fa-solid fa-tag"></i> ${catName(p.category)}</div>
+        </div>
+        ${canEdit(p) ? `<div onclick="event.stopPropagation()" style="display:flex;gap:6px;">
+          <button class="btn btn-ghost btn-sm btn-icon" onclick="openEditPost(${p.id})" title="แก้ไข"><i class="fa-solid fa-pen"></i></button>
+          <button class="btn btn-danger btn-sm btn-icon" onclick="deletePost(${p.id})" title="ลบ"><i class="fa-solid fa-trash"></i></button>
+          ${canPin() ? `<button class="btn btn-ghost btn-sm btn-icon" onclick="togglePin(${p.id})" title="ปักหมุด"><i class="fa-solid fa-thumbtack" style="${p.pinned?'color:var(--warning)':''}"></i></button>` : ''}
+        </div>` : ''}
+      </div>
+      <div class="post-title">${esc(p.title)}</div>
+      <div class="post-excerpt">${esc(p.content).substring(0,120)}${p.content.length>120?'…':''}</div>
+      ${tags}
+      ${imgHtml}
+      <div class="post-footer">
+        <span class="post-stat"><i class="fa-regular fa-eye"></i> ${p.views}</span>
+        <span class="post-stat"><i class="fa-regular fa-heart"></i> ${p.likes}</span>
+        <span class="post-stat"><i class="fa-regular fa-comment"></i> ${p.comments?.length||0}</span>
+        <div class="post-badges">${badges}</div>
+      </div>
+    </div>`;
+}
+
+function openDetail(id) {
+  const p = POSTS.find(x => x.id === id);
+  if (!p) return;
+  p.views++;
+  document.getElementById('boardList').classList.add('hidden');
+  document.getElementById('postDetail').classList.add('active');
+
+  const imgHtml = p.images?.length
+    ? `<div class="post-images cols-${Math.min(p.images.length,3)}" style="margin-top:16px;">${p.images.map(src=>`<img class="post-image" src="${src}">`).join('')}</div>`
+    : '';
+
+  document.getElementById('detailContent').innerHTML = `
+    <div class="post-header">
+      <div class="avatar" style="background:${avatarGrad(p.authorId)};width:48px;height:48px;font-size:1.1rem">${p.author.charAt(0)}</div>
+      <div class="post-meta">
+        <div class="post-author" style="font-size:1rem">${esc(p.author)} <span class="role-badge role-${getRole(p.authorId)}">${roleName(getRole(p.authorId))}</span></div>
+        <div class="post-time">${p.date} · ${catName(p.category)}</div>
+      </div>
+    </div>
+    <div class="post-title" style="font-size:1.3rem;margin-top:16px;">${esc(p.title)}</div>
+    ${p.tags?.length ? `<div class="post-tags">${p.tags.map(t=>`<span class="tag">#${t}</span>`).join('')}</div>` : ''}
+    <div class="detail-content">${esc(p.content)}</div>
+    ${imgHtml}
+    <div class="post-footer">
+      <span class="post-stat"><i class="fa-regular fa-eye"></i> ${p.views} ครั้ง</span>
+      <button class="btn btn-ghost btn-sm" onclick="likePost(${p.id})"><i class="fa-regular fa-heart"></i> ถูกใจ ${p.likes}</button>
+    </div>`;
+
+  document.getElementById('commentSection').innerHTML = `
+    <div class="comment-title"><i class="fa-regular fa-comments"></i> ความคิดเห็น (${p.comments?.length||0})</div>
+    ${(p.comments||[]).map(c=>`
+      <div class="comment-card">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+          <div class="avatar" style="width:30px;height:30px;font-size:0.75rem;background:var(--accent-2)">${c.author.charAt(0)}</div>
+          <span style="font-weight:600;font-size:0.875rem">${esc(c.author)}</span>
+          <span style="font-size:0.75rem;color:var(--text-muted)">${c.date}</span>
+        </div>
+        <div style="font-size:0.875rem;color:var(--text-secondary)">${esc(c.text)}</div>
+      </div>`).join('')}
+    <div class="comment-input">
+      <input class="form-control" id="commentInput_${p.id}" placeholder="เขียนความคิดเห็น..." onkeypress="if(event.key==='Enter')addComment(${p.id})">
+      <button class="btn btn-primary" onclick="addComment(${p.id})"><i class="fa-solid fa-paper-plane"></i></button>
+    </div>`;
+  renderStats();
+}
+
+function backToList() {
+  document.getElementById('boardList').classList.remove('hidden');
+  document.getElementById('postDetail').classList.remove('active');
+  renderPosts();
+}
+
+function addComment(postId) {
+  const inp = document.getElementById('commentInput_'+postId);
+  const text = inp.value.trim();
+  if (!text) return;
+  const p = POSTS.find(x => x.id === postId);
+  if (!p) return;
+  p.comments = p.comments || [];
+  p.comments.push({ id: Date.now(), author: currentUser.name, text, date: thaiDate() });
+  inp.value = '';
+  openDetail(postId);
+  syncToSheet();
+  showToast('เพิ่มความคิดเห็นแล้ว','success');
+}
+
+function likePost(id) {
+  const p = POSTS.find(x => x.id === id);
+  if (p) { p.likes++; openDetail(id); }
+}
+
+function togglePin(id) {
+  const p = POSTS.find(x => x.id === id);
+  if (p) { p.pinned = !p.pinned; renderPosts(); showToast(p.pinned ? 'ปักหมุดแล้ว' : 'ยกเลิกปักหมุดแล้ว','info'); }
+}
+
+function deletePost(id) {
+  if (!confirm('ต้องการลบกระทู้นี้?')) return;
+  POSTS = POSTS.filter(x => x.id !== id);
+  renderPosts(); renderStats(); syncToSheet();
+  showToast('ลบกระทู้แล้ว','success');
+}
+
+// ═══════════════════════════════════════════
+// POST MODAL
+// ═══════════════════════════════════════════
+function openPostModal() {
+  editingPostId = null;
+  document.getElementById('postModalTitle').textContent = 'สร้างกระทู้ใหม่';
+  document.getElementById('postTitle').value = '';
+  document.getElementById('postContent').value = '';
+  document.getElementById('postTags').value = '';
+  document.getElementById('postCategory').value = 'general';
+  document.getElementById('postPinned').checked = false;
+  document.getElementById('editPostId').value = '';
+  selectedImages = [];
+  renderPreview();
+  openModal('postModal');
+}
+
+function openEditPost(id) {
+  const p = POSTS.find(x => x.id === id);
+  if (!p) return;
+  editingPostId = id;
+  document.getElementById('postModalTitle').textContent = 'แก้ไขกระทู้';
+  document.getElementById('postTitle').value = p.title;
+  document.getElementById('postContent').value = p.content;
+  document.getElementById('postTags').value = (p.tags||[]).join(', ');
+  document.getElementById('postCategory').value = p.category;
+  document.getElementById('postPinned').checked = p.pinned || false;
+  document.getElementById('editPostId').value = id;
+  selectedImages = [];
+  renderPreview();
+  openModal('postModal');
+  event.stopPropagation();
+}
+
+async function submitPost() {
+  const title = document.getElementById('postTitle').value.trim();
+  const content = document.getElementById('postContent').value.trim();
+  if (!title || !content) { showToast('กรุณากรอกหัวข้อและเนื้อหา','error'); return; }
+
+  showLoading(true);
+  // Upload images to Google Drive
+  const uploadedUrls = await uploadImagesToDrive();
+  showLoading(false);
+
+  const tags = document.getElementById('postTags').value.split(',').map(t=>t.trim()).filter(Boolean);
+  const pinned = document.getElementById('postPinned').checked && canPin();
+
+  if (editingPostId) {
+    const p = POSTS.find(x => x.id === editingPostId);
+    Object.assign(p, { title, content, tags, category: document.getElementById('postCategory').value, pinned, images: [...(p.images||[]), ...uploadedUrls] });
+  } else {
+    POSTS.unshift({ id: Date.now(), title, content, tags, category: document.getElementById('postCategory').value, author: currentUser.name, authorId: currentUser.id, date: thaiDate(), views: 0, likes: 0, pinned, images: uploadedUrls, comments: [] });
+  }
+
+  closeModal('postModal');
+  renderPosts(); renderStats(); renderActivity();
+  await syncToSheet();
+  showToast(editingPostId ? 'แก้ไขกระทู้แล้ว' : 'โพสต์กระทู้แล้ว','success');
+}
+
+// ═══════════════════════════════════════════
+// IMAGE UPLOAD
+// ═══════════════════════════════════════════
+function handleImageSelect(e) {
+  const files = Array.from(e.target.files);
+  files.forEach(f => {
+    if (f.size > 5*1024*1024) { showToast(`${f.name} ใหญ่เกิน 5MB`,'error'); return; }
+    const reader = new FileReader();
+    reader.onload = ev => { selectedImages.push({ file: f, dataUrl: ev.target.result }); renderPreview(); };
+    reader.readAsDataURL(f);
+  });
+}
+
+function renderPreview() {
+  document.getElementById('uploadPreview').innerHTML = selectedImages.map((img,i) => `
+    <div class="preview-item">
+      <img class="preview-img" src="${img.dataUrl}">
+      <button class="preview-remove" onclick="removePreview(${i})">×</button>
+    </div>`).join('');
+}
+function removePreview(i) { selectedImages.splice(i,1); renderPreview(); }
+
+async function uploadImagesToDrive() {
+  if (!selectedImages.length || !CONFIG.scriptUrl || !CONFIG.folderId) {
+    return selectedImages.map(i => i.dataUrl); // fallback: store as dataURL
+  }
+  const urls = [];
+  document.getElementById('uploadProgress').style.display = 'block';
+  for (let i = 0; i < selectedImages.length; i++) {
+    try {
+      const progress = Math.round(((i+1)/selectedImages.length)*100);
+      document.getElementById('uploadBar').style.width = progress+'%';
+      const resp = await fetch(CONFIG.scriptUrl, {
+        method:'POST',
+        body: JSON.stringify({ action:'uploadImage', folderId: CONFIG.folderId, fileName: selectedImages[i].file.name, base64: selectedImages[i].dataUrl.split(',')[1], mimeType: selectedImages[i].file.type })
+      });
+      const data = await resp.json();
+      if (data.url) urls.push(data.url);
+    } catch(e) { urls.push(selectedImages[i].dataUrl); }
+  }
+  document.getElementById('uploadProgress').style.display = 'none';
+  return urls;
+}
+
+// ═══════════════════════════════════════════
+// GOOGLE SHEETS SYNC
+// ═══════════════════════════════════════════
+async function syncToSheet() {
+  if (!CONFIG.scriptUrl) return;
+  try {
+    document.getElementById('syncStatus').textContent = 'กำลังซิงค์...';
+    await fetch(CONFIG.scriptUrl, {
+      method:'POST',
+      body: JSON.stringify({ action:'writePosts', sheetId: CONFIG.sheetId, sheetName: CONFIG.sheetName, posts: POSTS })
+    });
+    document.getElementById('syncStatus').textContent = 'ซิงค์แล้ว ✓';
+  } catch(e) {
+    document.getElementById('syncStatus').textContent = 'ซิงค์ไม่สำเร็จ';
+  }
+}
+
+async function syncData() {
+  if (!CONFIG.scriptUrl || !CONFIG.sheetId) { showToast('กรุณาตั้งค่า Script URL และ Sheet ID ก่อน','error'); return; }
+  showLoading(true);
+  document.getElementById('syncStatus').textContent = 'กำลังดึงข้อมูล...';
+  try {
+    const resp = await fetch(`${CONFIG.scriptUrl}?action=getPosts&sheetId=${CONFIG.sheetId}&sheetName=${CONFIG.sheetName}`);
+    const data = await resp.json();
+    if (data.posts) { POSTS = data.posts; renderPosts(); renderStats(); showToast('ซิงค์ข้อมูลสำเร็จ','success'); }
+  } catch(e) { showToast('เชื่อมต่อไม่สำเร็จ ตรวจสอบ Script URL','error'); }
+  document.getElementById('syncStatus').textContent = 'เชื่อมต่อแล้ว';
+  showLoading(false);
+}
+
+// ═══════════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════════
+function loadConfig() {
+  CONFIG = {
+    sheetId: localStorage.getItem('wb_sheetId') || '',
+    sheetName: localStorage.getItem('wb_sheetName') || 'Posts',
+    scriptUrl: localStorage.getItem('wb_scriptUrl') || '',
+    folderId: localStorage.getItem('wb_folderId') || '',
+    driveKey: localStorage.getItem('wb_driveKey') || '',
+  };
+  const sid = CONFIG.sheetId || 'ยังไม่ได้ตั้งค่า';
+  const fid = CONFIG.folderId || 'ยังไม่ได้ตั้งค่า';
+  document.getElementById('sideSheetId').textContent = sid;
+  document.getElementById('sideFolderId').textContent = fid;
+}
+
+function loadConfigForm() {
+  document.getElementById('cfg_sheetId').value = CONFIG.sheetId;
+  document.getElementById('cfg_sheetName').value = CONFIG.sheetName;
+  document.getElementById('cfg_scriptUrl').value = CONFIG.scriptUrl;
+  document.getElementById('cfg_folderId').value = CONFIG.folderId;
+  document.getElementById('sheetIdDisplay').textContent = CONFIG.sheetId || 'ยังไม่ได้ตั้งค่า';
+  document.getElementById('folderIdDisplay').textContent = CONFIG.folderId || 'ยังไม่ได้ตั้งค่า';
+}
+
+function saveConfig() {
+  CONFIG.sheetId = document.getElementById('cfg_sheetId').value.trim();
+  CONFIG.sheetName = document.getElementById('cfg_sheetName').value.trim() || 'Posts';
+  CONFIG.scriptUrl = document.getElementById('cfg_scriptUrl').value.trim();
+  CONFIG.folderId = document.getElementById('cfg_folderId').value.trim();
+  CONFIG.driveKey = document.getElementById('cfg_driveKey').value.trim();
+  Object.entries(CONFIG).forEach(([k,v]) => localStorage.setItem('wb_'+k, v));
+  loadConfig(); loadConfigForm();
+  showToast('บันทึกการตั้งค่าแล้ว','success');
+}
+
+async function testConnection() {
+  if (!CONFIG.scriptUrl) { showToast('กรุณาใส่ Script URL ก่อน','error'); return; }
+  showLoading(true);
+  try {
+    const r = await fetch(CONFIG.scriptUrl+'?action=ping', {method:'GET'});
+    const d = await r.json();
+    showToast('เชื่อมต่อสำเร็จ: '+JSON.stringify(d),'success');
+  } catch(e) { showToast('เชื่อมต่อไม่สำเร็จ: '+e.message,'error'); }
+  showLoading(false);
+}
+
+// ═══════════════════════════════════════════
+// USERS
+// ═══════════════════════════════════════════
+function renderUsers() {
+  if (!canManageUsers()) return;
+  document.getElementById('userTable').innerHTML = `
+    <div style="overflow-x:auto;">
+    <table class="perm-table" style="background:var(--bg-card);border-radius:var(--radius);border:1px solid var(--border);">
+      <thead><tr><th>#</th><th>ชื่อ</th><th>อีเมล</th><th>บทบาท</th><th>จัดการ</th></tr></thead>
+      <tbody>${USERS_DB.map(u=>`
+        <tr>
+          <td style="color:var(--text-muted)">${u.id}</td>
+          <td style="display:flex;align-items:center;gap:8px;padding:10px;"><div class="avatar" style="width:30px;height:30px;font-size:0.75rem;background:${avatarGrad(u.id)}">${u.avatar}</div>${esc(u.name)}</td>
+          <td style="color:var(--text-secondary)">${esc(u.email)}</td>
+          <td><span class="role-badge role-${u.role}">${roleName(u.role)}</span></td>
+          <td><div style="display:flex;gap:6px;">
+            <button class="btn btn-ghost btn-sm" onclick="openEditUser(${u.id})"><i class="fa-solid fa-pen"></i></button>
+            ${u.id !== currentUser?.id ? `<button class="btn btn-danger btn-sm" onclick="deleteUser(${u.id})"><i class="fa-solid fa-trash"></i></button>` : ''}
+          </div></td>
+        </tr>`).join('')}
+      </tbody>
+    </table></div>`;
+}
+
+function openUserModal() { document.getElementById('editUserId').value=''; document.getElementById('userName').value=''; document.getElementById('userEmail').value=''; document.getElementById('userPass').value=''; document.getElementById('userRole').value='member'; openModal('userModal'); }
+function openEditUser(id) {
+  const u = USERS_DB.find(x=>x.id===id);
+  if (!u) return;
+  document.getElementById('editUserId').value = id;
+  document.getElementById('userName').value = u.name;
+  document.getElementById('userEmail').value = u.email;
+  document.getElementById('userPass').value = '';
+  document.getElementById('userRole').value = u.role;
+  openModal('userModal');
+}
+function submitUser() {
+  const id = document.getElementById('editUserId').value;
+  const name = document.getElementById('userName').value.trim();
+  const email = document.getElementById('userEmail').value.trim();
+  const pass = document.getElementById('userPass').value;
+  const role = document.getElementById('userRole').value;
+  if (!name || !email) { showToast('กรุณากรอกข้อมูลให้ครบ','error'); return; }
+  if (id) {
+    const u = USERS_DB.find(x=>x.id==id);
+    u.name = name; u.email = email; u.role = role; u.avatar = name.charAt(0).toUpperCase();
+    if (pass) u.pass = pass;
+  } else {
+    USERS_DB.push({ id: Date.now(), name, email, pass: pass||'user123', role, avatar: name.charAt(0).toUpperCase() });
+  }
+  closeModal('userModal'); renderUsers(); showToast('บันทึกผู้ใช้แล้ว','success');
+}
+function deleteUser(id) {
+  if (!confirm('ต้องการลบผู้ใช้นี้?')) return;
+  const i = USERS_DB.findIndex(x=>x.id===id);
+  if (i>-1) { USERS_DB.splice(i,1); renderUsers(); showToast('ลบผู้ใช้แล้ว','success'); }
+}
+
+// ═══════════════════════════════════════════
+// FILTERS & SORT
+// ═══════════════════════════════════════════
+function filterCategory(cat) {
+  currentCategory = cat;
+  document.querySelectorAll('.category-item').forEach(el => el.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  renderPosts();
+}
+function filterSearch() { currentSearchQ = document.getElementById('searchInput').value.trim(); renderPosts(); }
+function switchTab(tab, el) {
+  currentTab = tab;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  renderPosts();
+}
+function sortPosts(by) { if (by==='newest') POSTS.sort((a,b)=>b.id-a.id); else if (by==='popular') POSTS.sort((a,b)=>b.views-a.views); else POSTS.sort((a,b)=>(b.comments?.length||0)-(a.comments?.length||0)); renderPosts(); }
+
+function updateCategoryBadges() {
+  document.getElementById('cat-all').textContent = POSTS.length;
+  document.getElementById('cat-ann').textContent = POSTS.filter(p=>p.category==='announcement').length;
+  document.getElementById('cat-gen').textContent = POSTS.filter(p=>p.category==='general').length;
+  document.getElementById('cat-q').textContent = POSTS.filter(p=>p.category==='question').length;
+  document.getElementById('cat-work').textContent = POSTS.filter(p=>p.category==='work').length;
+}
+
+// ═══════════════════════════════════════════
+// STATS & ACTIVITY
+// ═══════════════════════════════════════════
+function renderStats() {
+  document.getElementById('statPosts').textContent = POSTS.length;
+  document.getElementById('statComments').textContent = POSTS.reduce((s,p)=>s+(p.comments?.length||0),0);
+  document.getElementById('statUsers').textContent = USERS_DB.length;
+  document.getElementById('statViews').textContent = POSTS.reduce((s,p)=>s+p.views,0);
+}
+function renderActivity() {
+  const feed = document.getElementById('activityFeed');
+  const acts = [...POSTS].sort((a,b)=>b.id-a.id).slice(0,5).map(p=>`
+    <div style="display:flex;gap:8px;align-items:center;">
+      <div style="width:6px;height:6px;border-radius:50%;background:var(--accent);flex-shrink:0;"></div>
+      <div><span style="color:var(--text-primary);font-weight:500">${esc(p.author)}</span> โพสต์: ${esc(p.title).substring(0,30)}...</div>
+    </div>`).join('');
+  feed.innerHTML = acts || '<div>ยังไม่มีกิจกรรม</div>';
+}
+
+// ═══════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════
+function catName(c) { return {announcement:'ประกาศ',general:'ทั่วไป',question:'ถาม-ตอบ',work:'งาน/โครงการ'}[c]||c; }
+function getRole(uid) { return USERS_DB.find(u=>u.id===uid)?.role || 'member'; }
+function avatarGrad(id) { const gs = ['linear-gradient(135deg,#14c8a0,#6366f1)','linear-gradient(135deg,#f97316,#f43f5e)','linear-gradient(135deg,#60a5fa,#a78bfa)','linear-gradient(135deg,#fbbf24,#f97316)']; return gs[id%gs.length]; }
+function thaiDate() { const d = new Date(); return `${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()+543}`; }
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+function showLoading(show) {
+  const bar = document.getElementById('loadingBar');
+  bar.classList.toggle('show', show);
+}
+
+function showToast(msg, type='info') {
+  const c = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.innerHTML = `<i class="fa-solid fa-${type==='success'?'circle-check':type==='error'?'circle-xmark':'circle-info'}"></i> ${msg}`;
+  c.appendChild(t);
+  setTimeout(() => t.remove(), 3500);
+}
+
+function toggleTheme() {
+  const root = document.documentElement;
+  const curr = root.getAttribute('data-theme');
+  root.setAttribute('data-theme', curr==='dark'?'light':'dark');
+  localStorage.setItem('wb_theme', root.getAttribute('data-theme'));
+}
+
+// Close modals on overlay click
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => { if(e.target===overlay) overlay.classList.remove('open'); });
+});
+
+// Init
+(function() {
+  const saved = localStorage.getItem('wb_theme');
+  if (saved) document.documentElement.setAttribute('data-theme', saved);
+  // Admin auto-login for demo convenience
+})();
+</script>
+</body>
+</html>
